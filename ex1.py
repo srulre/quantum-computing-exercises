@@ -77,4 +77,5 @@ if __name__ == '__main__':
     # create the circuit object for the bell state generator
     ghz_state_circuit = ghz_generator(n_qubits)
     # draw in graph
-    ghz_state_circuit.draw(output='mpl', filename=pathlib.Path(output_path, 'output.png'))
+    ghz_state_circuit.draw(output='mpl',
+                           filename=str(pathlib.Path(output_path, 'output.png')))
