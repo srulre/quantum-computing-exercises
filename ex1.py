@@ -67,15 +67,12 @@ if __name__ == '__main__':
     # process output path
     output_path_str = args.output_path
     if not output_path_str:
-        output_path = pathlib.Path.cwd()  # default output path is the current working directory
+        output_path = pathlib.Path.cwd() / 'output.png'  # default output path is the current working directory
     else:
         output_path = pathlib.Path(output_path_str)
-    # create output folder if doesn't exist yet
-    if not output_path.exists():
-        output_path.mkdir()
 
     # create the circuit object for the bell state generator
     ghz_state_circuit = ghz_generator(n_qubits)
     # draw in graph
     ghz_state_circuit.draw(output='mpl',
-                           filename=str(pathlib.Path(output_path, 'output.png')))
+                           filename=str(output_path))
