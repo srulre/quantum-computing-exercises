@@ -10,11 +10,13 @@ from qiskit.visualization import plot_histogram
 
 
 class GHZConfigModel(BaseModel):
-    qubit_count: int = 2
+    qubit_count: int
     output_path: Optional[str] = None
 
 
 def ghz_generator(n_qubits: int) -> QuantumCircuit:
+    if n_qubits < 1:
+        raise ValueError("Qubit count must be larger than 0")
     # Create a Quantum Circuit with n qubits
     circuit = QuantumCircuit(n_qubits)
     # Add a H gate on qubit 0
@@ -39,13 +41,10 @@ if __name__ == '__main__':
         ghz_config = GHZConfigModel.parse_file(args.config_path)
     except ValidationError as e:
         print(e)
+        raise e
 
-    # extract parameters
+    # extract qubit count
     n_qubits = ghz_config.dict()["qubit_count"]
-    if not n_qubits:
-        n_qubits = 2  # default ghz state will be the first bell state
-    if n_qubits < 2:
-        raise ValueError("Qubit count must be larger than 1")
 
     # process output path
     output_path_str = ghz_config.dict()["output_path"]
