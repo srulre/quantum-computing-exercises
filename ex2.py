@@ -3,10 +3,7 @@ import argparse
 import pathlib
 from pydantic import BaseModel, ValidationError
 from typing import Optional
-from qiskit import QuantumCircuit, transpile
-from qiskit.providers.aer import QasmSimulator
-from qiskit.quantum_info import Statevector
-from qiskit.visualization import plot_histogram
+from qiskit import QuantumCircuit
 
 
 class GHZConfigModel(BaseModel):
