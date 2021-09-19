@@ -1,0 +1,4 @@
+qiskit
+pydantic
+matplotlib
+pylatexenc
