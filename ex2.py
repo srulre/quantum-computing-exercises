@@ -1,57 +1,52 @@
-import numpy as np
 import argparse
 import pathlib
-from pydantic import BaseModel, ValidationError
+import pydantic
 from typing import Optional
 from qiskit import QuantumCircuit
 
 
-class GHZConfigModel(BaseModel):
-    qubit_count: int
-    output_path: Optional[str] = None
+class GHZConfigModel(pydantic.BaseModel):
+    qubit_count: int = 2
+    output_path: Optional[str] = pathlib.Path.cwd() / 'output.png'
+
+    @pydantic.validator('qubit_count')
+    def qubit_count_positive(cls, v):
+        if v < 1:
+            raise ValueError("Qubit count must be greater than 0")
+        return v
+
+    @pydantic.validator('output_path')
+    def output_path_exists(cls, v):
+        v_path = pathlib.Path(v)
+        v_path_dir = v_path if not v_path.suffix else v_path.parents[0]
+        if not v_path_dir.exists():  # create folder
+            v_path_dir.mkdir(parents=True)
+        if not v_path.suffix:
+            v_path = v_path / 'output.png'
+        return v_path
 
 
 def ghz_generator(n_qubits: int) -> QuantumCircuit:
-    if n_qubits < 1:
-        raise ValueError("Qubit count must be larger than 0")
-    # Create a Quantum Circuit with n qubits
     circuit = QuantumCircuit(n_qubits)
-    # Add a H gate on qubit 0
     circuit.h(0)
     for qubit in range(1, n_qubits):
-        # Add a CX (CNOT) gate on corresponding control qubit and target qubit
         circuit.cx(0, qubit)
 
     return circuit
 
 
 if __name__ == '__main__':
-
     ### Ex 2.1
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--config_path", type=str,
                         help="JSON configuration path")
     args = parser.parse_args()
 
-    # parse to pydantic
-    try:
-        ghz_config = GHZConfigModel.parse_file(args.config_path)
-    except ValidationError as e:
-        print(e)
-        raise e
+    # parse to pydantic and process input
+    ghz_config = GHZConfigModel.parse_file(args.config_path)
+    n_qubits = ghz_config.qubit_count
+    output_path = ghz_config.output_path
 
-    # extract qubit count
-    n_qubits = ghz_config.dict()["qubit_count"]
-
-    # process output path
-    output_path_str = ghz_config.dict()["output_path"]
-    if not output_path_str:
-        output_path = pathlib.Path.cwd() / 'output.png'  # default output path is the current working directory
-    else:
-        output_path = pathlib.Path(output_path_str)
-
-    # create the circuit object for the bell state generator
     ghz_state_circuit = ghz_generator(n_qubits)
-    # draw in graph
     ghz_state_circuit.draw(output='mpl',
                            filename=str(output_path))
