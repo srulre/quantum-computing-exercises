@@ -6,14 +6,8 @@ from qiskit import QuantumCircuit
 
 
 class GHZConfigModel(pydantic.BaseModel):
-    qubit_count: int = 2
-    output_path: Optional[str] = pathlib.Path.cwd() / 'output.png'
-
-    @pydantic.validator('qubit_count')
-    def qubit_count_positive(cls, v):
-        if v < 1:
-            raise ValueError("Qubit count must be greater than 0")
-        return v
+    qubit_count: pydantic.PositiveInt = 2
+    output_path: str = pathlib.Path.cwd() / 'output.png'
 
     @pydantic.validator('output_path')
     def output_path_exists(cls, v):
